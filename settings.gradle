@@ -1,0 +1,4 @@
+rootProject.name = 'Premix'
+include 'processor'
+include 'annotation'
+
