@@ -2,18 +2,24 @@ plugins {
     id 'java'
 }
 
-group = 'be.raft.premix'
-version = '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testAnnotationProcessor project(":processor")
 }
 
-test {
-    useJUnitPlatform()
+tasks.register("buildTest", Jar) {
+    group 'build'
+    dependsOn 'testClasses'
+    from sourceSets.test.output
+    archiveFileName.set("Test.jar")
+}
+
+build {
+    dependsOn buildTest
+}
+
+tasks.register("run", JavaExec) {
+    group "run"
+
+    classpath = files(buildTest.archiveFile)
+    mainClass.set("userend.Main")
 }
