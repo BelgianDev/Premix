@@ -16,4 +16,10 @@ public @interface Mixin {
      * Target class for mixin injection.
      */
     Class<?>[] value();
+
+    /**
+     * Sets the priority of the mixin, higher values mean it will be applied first,
+     * while lower values will make the mixin apply as last.
+     */
+    int priority() default 1000;
 }

@@ -1,15 +1,21 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
 }
 
 dependencies {
     testAnnotationProcessor project(":processor")
+    testImplementation "fr.atlasworld.common:common:2.0.0" // test subject
 }
 
-tasks.register("buildTest", Jar) {
+tasks.register("buildTest", ShadowJar) {
     group 'build'
+
     dependsOn 'testClasses'
     from sourceSets.test.output
+    configurations = [project.configurations.testRuntimeClasspath]
     archiveFileName.set("Test.jar")
 }
 
@@ -19,6 +25,7 @@ build {
 
 tasks.register("run", JavaExec) {
     group "run"
+    dependsOn "buildTest"
 
     classpath = files(buildTest.archiveFile)
     mainClass.set("userend.Main")

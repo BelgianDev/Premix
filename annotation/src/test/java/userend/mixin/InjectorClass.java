@@ -3,17 +3,16 @@ package userend.mixin;
 import be.raft.premix.annotation.Inject;
 import be.raft.premix.annotation.Mixin;
 import be.raft.premix.annotation.Shadow;
+import fr.atlasworld.common.file.reader.JsonFileReader;
 import userend.InjectorClassInterface;
 
-@Mixin(TargetClass.class)
-public abstract class InjectorClass implements InjectorClassInterface {
+import java.io.IOException;
 
-    @Shadow
-    private String secretMessage;
+@Mixin(JsonFileReader.class)
+public class InjectorClass implements InjectorClassInterface {
 
-    @Inject(target = "doStuff")
-    private void doStuffInjector() {
-        System.out.println("Successfully injected new stuff in doStuff method!");
-        System.out.println("Leaked Secret message: " + this.secretMessage);
+    @Inject(target = "writeRaw")
+    private void injectWrite() throws IOException {
+        System.out.println("Successfully injected into " + this.getClass().getSimpleName());
     }
 }
