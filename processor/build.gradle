@@ -1,12 +1,54 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
 }
 
 dependencies {
     implementation project(":annotation")
-
-    annotationProcessor "com.google.auto.service:auto-service:${auto_service_version}"
-
     implementation "org.ow2.asm:asm:${asm_version}"
-    implementation "com.google.auto.service:auto-service-annotations:${auto_service_version}"
+
+    testImplementation "fr.atlasworld.common:common:2.0.0" // test subject
+}
+
+shadowJar {
+    archiveClassifier.set('')
+    archiveBaseName.set("${project.name}-compiler")
+}
+
+tasks.register("buildTest", ShadowJar) {
+    group 'build'
+
+    dependsOn 'testClasses'
+    from sourceSets.test.output
+    configurations = [project.configurations.testRuntimeClasspath]
+    archiveFileName.set("Test.jar")
+}
+
+build {
+    dependsOn buildTest
+}
+
+compileTestJava {
+    dependsOn shadowJar
+
+    outputs.upToDateWhen { false } // Always recompile
+    options.compilerArgs.add('-Xplugin:MixinCompilerPlugin')
+}
+
+tasks.register("run", JavaExec) {
+    group "run"
+    dependsOn "buildTest"
+
+    classpath = files(buildTest.archiveFile)
+    mainClass.set("userend.Main")
+}
+
+build {
+    dependsOn shadowJar
+}
+
+jar {
+    enabled = false
 }

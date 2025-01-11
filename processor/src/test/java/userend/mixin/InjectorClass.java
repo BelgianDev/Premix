@@ -2,7 +2,6 @@ package userend.mixin;
 
 import be.raft.premix.annotation.Inject;
 import be.raft.premix.annotation.Mixin;
-import be.raft.premix.annotation.Shadow;
 import fr.atlasworld.common.file.reader.JsonFileReader;
 import userend.InjectorClassInterface;
 
