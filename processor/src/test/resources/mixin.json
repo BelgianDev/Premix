@@ -1,0 +1,10 @@
+{
+  "mixin": [
+    "userend.Main",
+    "userend.mixin.InjectorClass",
+    "userend.mixin.InjectorInterface"
+  ],
+  "protected": [
+    "userend.secure.*"
+  ]
+}

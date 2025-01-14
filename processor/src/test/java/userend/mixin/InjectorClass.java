@@ -7,10 +7,10 @@ import userend.InjectorClassInterface;
 
 import java.io.IOException;
 
-@Mixin(JsonFileReader.class)
+@Mixin(value = JsonFileReader.class, priority = 1001)
 public class InjectorClass implements InjectorClassInterface {
 
-    @Inject(target = "writeRaw")
+    @Inject("")
     private void injectWrite() throws IOException {
         System.out.println("Successfully injected into " + this.getClass().getSimpleName());
     }

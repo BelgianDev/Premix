@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration status="WARN" name="AtlasGame">
+    <Appenders>
+        <Console name="console">
+            <PatternLayout
+                    pattern="[%d{HH:mm:ss}] %highlight{[%level/%logger{1}]}{ERROR=red, WARN=yellow, INFO=blue, DEBUG=white, TRACE=white} %msg%n"
+                    disableAnsi="false"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="info" includeLocation="false">
+            <AppenderRef ref="console"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-
+    testImplementation "fr.atlasworld.common:common:2.0.0" // test subject
 }
 
 java {

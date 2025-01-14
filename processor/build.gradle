@@ -2,44 +2,72 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id 'java'
+    id 'org.ajoberstar.grgit' version '5.2.1'
     id 'com.github.johnrengelman.shadow' version '7.1.0'
 }
 
 dependencies {
     implementation project(":annotation")
     implementation "org.ow2.asm:asm:${asm_version}"
+    implementation "net.sf.jopt-simple:jopt-simple:${jopt_version}"
+    implementation "fr.atlasworld.common:common:${common_version}"
+    implementation "org.apache.logging.log4j:log4j-core:${log4j_version}"
+    implementation "org.apache.logging.log4j:log4j-api:${log4j_version}"
+    implementation "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j_version}"
 
     testImplementation "fr.atlasworld.common:common:2.0.0" // test subject
+}
+
+tasks.withType(ProcessResources).configureEach {
+    var properties = [
+            version         : project.version,
+            commit          : grgit.head().id,
+            branch          : grgit.branch.current().name,
+            build_time      : new Date().time,
+    ]
+
+    inputs.properties properties
+
+    filesMatching(['build.properties']) {
+        expand properties + [project: project]
+    }
 }
 
 shadowJar {
     archiveClassifier.set('')
     archiveBaseName.set("${project.name}-compiler")
+
+    manifest {
+        attributes 'Main-Class': "be.raft.premix.MixinProcessor"
+    }
 }
 
 tasks.register("buildTest", ShadowJar) {
     group 'build'
-
     dependsOn 'testClasses'
+
     from sourceSets.test.output
-    configurations = [project.configurations.testRuntimeClasspath]
     archiveFileName.set("Test.jar")
 }
 
-build {
-    dependsOn buildTest
-}
+tasks.register("runMixinProcessor", JavaExec) {
+    dependsOn build
+    dependsOn "buildTest"
 
-compileTestJava {
-    dependsOn shadowJar
+    classpath = files(shadowJar.archiveFile)
+    mainClass.set("be.raft.premix.MixinProcessor")
 
-    outputs.upToDateWhen { false } // Always recompile
-    options.compilerArgs.add('-Xplugin:MixinCompilerPlugin')
+    File source = buildTest.archiveFile.get().asFile;
+    File out = new File(source.getParentFile(), source.getName().replace(".jar", "-mixed.jar"))
+
+    args "--input", source, "--output", out
 }
 
 tasks.register("run", JavaExec) {
     group "run"
+
     dependsOn "buildTest"
+    dependsOn "runMixinProcessor"
 
     classpath = files(buildTest.archiveFile)
     mainClass.set("userend.Main")
